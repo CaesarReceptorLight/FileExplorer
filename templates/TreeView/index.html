@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<script>var currentDatasetId = {{ datasetId }}</script>
+<script>var currentDatasetName = "{{ datasetName }}";</script>
+<script>var currentExperimentId = {{ experimentId }}</script>
+<script>var currentRootFolderId = {{ rootFolderId }}</script>
+
+<script type="text/javascript">DJANGO_STATIC_URL = '{{ STATIC_URL }}';</script>
+<script src="{% static 'TreeView/js/StreamSaver.js' %}"></script>
+<script src="https://unpkg.com/@mattiasbuelens/web-streams-polyfill/dist/polyfill.min.js"></script>
+<script src="{% static 'TreeView/js/TreeView.js' %}"></script>
+
+<body>
+<div class="page-header">
+	<h1>File explorer for selected dataset</h1>
+</div>
+<div>
+    <table style="font-size:12px;">
+		<col width="100">
+		<col width="50">
+		<col width="200">
+		<tr>
+			<td><strong>Selected dataset:</strong></td>
+			<td></td>
+			<td>{{ datasetName }} ({{ datasetId }})</td>
+		</tr>
+		<tr>
+			<td><strong>Selected experiment:</strong></td>
+			<td></td>
+			<td>{{ experimentName }} ({{ experimentId }}) ({{rootFolderId}})</td>
+		</tr>
+	</table>
+	<hr>
+	<h1 id="noExpLabel"><font color="red">There is no experiment for the selected dataset!</font></h1>
+	<button id="expButton" type="button" class="button" onclick="CreateExperimentAtServer()">Create Experiment</button><br>
+	<h1 id="expNameLabel"><font size="2" color="black">Experiment name</font></h1>
+	<input type="text" id="expNameBox"><br>
+	<button id="rootButton" type="button" class="button" onclick="CreateRootAtServer()">Create Root</button>
+	<p id="experimentHeaderText" style="display:none"><img id="experimentHeader"></p>
+	<div class="dataTree" id="treeViewRootDiv">
+	</div>
+</div>
+
+<script>
+	$(function () { 		
+		$('#treeViewRootDiv').jstree({
+			'plugins': ['themes', 'html_data', 'ui', 'crrm', 'contextmenu', 'json_data', 'sort'],
+			'core' : {
+				'check_callback' : function (operation, node, node_parent, node_position, more) {
+					return true;
+				},
+				'themes' : {
+					'dots' : 'false'
+				}
+			},
+			'contextmenu': {
+				'items': CreateContext(),
+				'select_node':'true'
+			},
+    		'sort' : function(a, b) {
+				a1 = this.get_node(a);
+				b1 = this.get_node(b);
+				if (a1.icon == b1.icon){
+					return (a1.text.toLowerCase() > b1.text.toLowerCase()) ? 1 : -1;
+				} else {
+					return (a1.icon < b1.icon) ? 1 : -1;
+					}
+    			},
+		});
+
+		StartUp();
+	});
+	
+	$('#treeViewRootDiv').on("rename_node.jstree", function (e, data) {
+		FolderRenamed(data);
+	});
+</script
+
+</body>
+</html>
+
